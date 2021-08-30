@@ -10,7 +10,7 @@ site: bookdown::bookdown_site
 
 # Introdução {#intro}
 
-  Entre maio e julho de 2020 um dos assuntos mais comentados do Twitter^[Disponível em: https://bityli.com/rm13V] foi uma coleção de revistinhas infantis evangélicas chamada "Dudão". Lançada pela Editora Vida entre os anos de 1991 e 2000, e com um corpo editorial feito majoritariamente por protestantes, a HQ segue a vida de Dudão, um menino cristão, e seus amigos Binho, Paçoca, Rebeca, Zuca e Pita.
+  Entre maio e julho de 2020 um dos assuntos mais comentados do Twitter^[Disponível em: https://bityli.com/rm13V] foi uma coleção de revistinhas infantis evangélica chamada "Dudão". Lançada pela Editora Vida entre os anos de 1991 e 2000, e com um corpo editorial feito majoritariamente por protestantes, a HQ segue a vida de Dudão, um menino cristão, e seus amigos Binho, Paçoca, Rebeca, Zuca e Pita.
   
   Boa parte das histórias se resumem à Dudão ajudando seus amigos, seja com conselhos religiosos ou ações diretas, a saírem das enrascadas que eles se meteram. Dentre as várias histórias disponíveis uma me chamou a atenção. Em _"Elas estão por aí"_ Dudão encontra Binho, seu amigo, chorando desolado em um campo após ter tido suas chinelas roubadas por um garoto de rua. Dudão e Binho passam boa parte da história tentando localizar o dito cujo até que o encontram embaixo de uma ponte. Quando eles tentaram pegar os calçados de volta a criança pediu que não batessem nele e justificou as suas ações falando que "nunca teve uma chinela". Sensibilizados, Binho e Dudão acabam indo conversar com o pastor da igreja deles para saber se o garoto podia ficar no orfanato regido pela instituição. A imagem abaixo é extraída diretamente da revistinha e descreve o evento em questão:
   

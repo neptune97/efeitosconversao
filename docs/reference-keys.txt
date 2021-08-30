@@ -143,3 +143,4 @@ qca
 truth-table-e-minimização
 discussão
 conclusão
+referências

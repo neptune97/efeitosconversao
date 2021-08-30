@@ -6,3 +6,7 @@ bookdown::gitbook:
         <li><a href="./">EFEITOS CONVERSAO</a></li>
       after: |
         <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+    toolbar:
+      position: fixed
+      download: 'docs/_main.pdf'
+      search: yes
