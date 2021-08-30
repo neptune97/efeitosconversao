@@ -1,0 +1,365 @@
+```{r, include=FALSE}
+
+library (readxl)
+library (QCA)
+library (tidyverse)
+
+#data
+bd <- read_excel("~/efeitosconversao/data/dados_mestrado.xlsx")
+
+dt <- bd %>% 
+  select(PCT_n, FS06, FS05_n ,R06_n) %>% 
+  drop_na()
+
+dt$conv <- calibrate(dt$R06_n, type = "fuzzy", thresholds = c( 1.5, 2.5, 3.5), logistic = T)
+dt$recov <- calibrate(dt$FS06, type = "fuzzy", thresholds = c(3.5,6.5,8.5), logistic = T)
+dt$abst <- calibrate(dt$PCT_n, type = "fuzzy", thresholds = c(2.5,3.5,4.5), logistic = T)
+dt$redes <- calibrate(dt$FS05_n, type = "fuzzy", thresholds = c(1.0,3.5,5.5), logistic = T)
+
+fuz <- dt[,5:8]
+
+```
+
+# Resultados e Discussão
+
+  A exploração dos dados feita no capítulo anterior ajudou a entender mais sobre as pessoas que responderam o questionário. Isso, no entanto, não ajuda a responder, de fato, quais impactos a Conversão Religiosa teve sobre os estados de Abstêmia e Recuperação. Para que isso seja possível uma exploração mais aprofundada se faz necessária, no caso a _QCA_. Essa seção do texto tratará de explicar como ela foi feita, os resultados obtidos e uma discussão de como eles se refletem nos casos analisados e na literatura. Uma primeira parte irá explicar os critérios de Calibração, após será feita a análise de fato e, por fim, uma discussão será tecida. Apenas 2 condições^[Apesar da argumentação das hipóteses apontarem outros processos, eles não poderiam ser utilizados em análises _fuzzy_, dado que não podem ser labelados em níveis. Contato com os filhos, por exemplo, não foi uma variável explorada o suficiente para construir um arcabouço possível de fuzzificação. Apenas variáveis que suportariam esse processo foram utilizadas.], como disposto nas hipóteses, foram utilizadas nas análises: A _Conversão_ e as _Redes Sociais_. 
+  
+  
+## Calibração
+
+### Conversão
+
+  Um dos primeiros obstáculos na construção da análise foi estabelecer os limites de pertencimento dos dados, dado que não existem pesquisas que delimitem de forma específica os níveis de pertencimento dos objetos estudados. Não existem estudos que informem, por exemplo, o quanto alguem pode ser considerada mais ou menos convertido, ou que digam o quanto de apoio social uma pessoa precisa para ser considerada bem assegurada. Sabendo disso dois métodos foram utilizados para estabelecer limites confiáveis. O primeiro foi o desenvolvimento de um rankeamento para os dados utilizados, o segundo foi uma técnica de _clustering_ para ver como os dados podem ser separados de forma ótima.
+  
+  A questão sobre Conversão, como dito anteriormente, foi dividida em 4 níveis: "Sim, sou convertido", "Não, não sou convertido", "Não existe algo como conversão na minha religião" e "Ainda estou em processo de Conversão". Apesar desses estados não serem numéricos eles possuem em si um ordenamento lógico. Uma pessoa que está em processo de conversão está em um nível mais avançado do que alguém que não é convertido ou que está em uma religião que não promove este tipo de ação. Este último está um pouco acima do primeiro, mesmo que ambos compartilhem do espectro da não conversão. Dentro dessa lógica os dados foram rankeados pelos limites de pertencimento e o rankeamento foi processado por dois algoritmos de calibração. O primeiro foi o _TFR_ (Totally Fuzzy and Relative), criado especialmente para variáveis categóricas e ordinais [@dusa_qca_2018, 97] e o segundo foi a Função Logística com _thresholders_ gerados a partir de Análise de Cluster, que utilizou como parâmetros o método **complete** e a **distância euclideana**. Ambos os algoritmos estão disponíveis no pacote **QCA** [@QCA]. Os resultados se encontram na tabela abaixo:
+  
+  
++--------------------------------------------------+---------------+-----------------+-----------------+
+| Item                                             | Valor ordinal | Valor Calibrado | Valor Calibrado |
+|                                                  |               |                 |                 |
+|                                                  |               | (TFR)           | (Cluster)       |
++==================================================+===============+=================+=================+
+| Sim, eu me considero convertido                  | 1             | 1.00            | 0.98            |
++--------------------------------------------------+---------------+-----------------+-----------------+
+| Ainda estou em processo de conversão             | 2             | 0.46            | 0.81            |
++--------------------------------------------------+---------------+-----------------+-----------------+
+| Não existe algo como conversão na minha religião | 3             | 0.13            | 0.18            |
++--------------------------------------------------+---------------+-----------------+-----------------+
+| Não, eu não me considero convertido              | 4             | 0.00            | 0.01            |
++--------------------------------------------------+---------------+-----------------+-----------------+
+Table: (\#tab:calibracao-conversão) Calibração dos itens da variável de Conversão
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+
+  Apesar dos valores de ambos serem diferentes no segundo item eles são bem similares no resto. Apesar disso optou-se pelos valores gerados pela TFR, como é indicado pela literatura especializada. 
+  
+### Abstêmia
+
+  As outras variáveis eram numéricas, duas escalares (abstêmia e recuperação) e uma discreta (número de pessoas ou grupos que oferecem ajuda). Dada a natureza quantitativa delas não foi necessário muito esforço para calibrar. Todas elas foram calibradas, inicialmente, pela própria distribuição dos dados e após pela função logística com limites fornecidos por clusterização. 
+  
+  A variável utilizada para apontar abstêmia foi o número de substâncias que a pessoas utilizou desde o dia da sua saída até a data da entrevista. Caso a pessoa não tivesse utilizado nada ela recebia o valor de total inclusão (1.00) e a medida que o número de substâncias utilizadas aumentava também crescia o limite de exclusão. O gráfico abaixo demonstra a variação dos dados e ajuda a visualizar as melhores áreas de corte.
+  
+```{r imagem65, echo = FALSE, fig.cap = "Distribuição da variável de Abstêmia", fig.pos = "H", fig.align='center', out.width="60%"}
+
+Xplot(dt$PCT_n, xlab = "Abstêmia")
+
+```
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter  
+  
+  É possível ver que não existem áreas com sobreposição ou superrepresentação. Logo, visualmente, os dados parecem ser melhor divididos em 2,3 e 4. O algoritmo de clusterização apontou valores similares: 2.5, 3.5 e 4.5. A tabela abaixo mostra o número de substâncias utilizadas e suas devidas calibrações
+
+```{r, include=FALSE}
+
+foring <- c(0:4)
+cond_cal <- c(0.99, 0.81, 0.19, 0.01, 0.00)
+
+a <- cbind(foring, cond_cal)
+
+```
+
+```{r tab-abstemia, warning=FALSE, message=FALSE, echo=FALSE}
+library(knitr)
+library (kableExtra)
+
+kable (a, format = "latex", booktabs = TRUE,
+      caption = "Calibração dos itens da variável de Abstêmia", col.names = c("Frequência Original", "Condição Calibrada")) %>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  row_spec(0, bold = TRUE)
+
+```
+
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+
+
+### Recuperação
+
+  A questão de recuperação, como dito anteriormente, era uma escala de 0 a 10. De forma similar ao item anterior foi-se plotada a dispersão dos dados, de forma a identificar pontos de divisão em grupos. A imagem abaixo é o resultado desse processo.
+  
+```{r imagem66, echo = FALSE, fig.cap = "Distribuição da variável de Recuperação", fig.pos = "H", fig.align='center', out.width="60%"}
+
+Xplot(dt$FS06, xlab = "Recuperação")
+
+```
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter  
+
+  É possível perceber na imagem que grande parte dos dados se concentra na parte mais à direita da escala, produzindo uma vala entre o 4 e os valores à esquerda. Um pequeno espaço também se forma após o 8. O processo de clusterização indicou como valores de corte 3.5, 6.5 e 8.5. Os valores finais calibrados são mostrados na tabela abaixo:
+  
+
+```{r, include=FALSE}
+
+foring <- c(1,2,5,6,7,8,9,10)
+cond_cal <- c(0.00, 0.01, 0.19, 0.38, 0.68, 0.9, 0.98, 0.99)
+
+a <- cbind(foring, cond_cal)
+
+```
+
+```{r tab-recover, warning=FALSE, message=FALSE, echo=FALSE}
+library(knitr)
+library (kableExtra)
+
+kable (a, format = "latex", booktabs = TRUE,
+      caption = "Calibração dos itens da variável de Recuperação", col.names = c("Frequência Original", "Condição Calibrada")) %>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  row_spec(0, bold = TRUE)
+
+```
+
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+  
+  
+### Redes Sociais 
+
+  A última variável que passou pelo processo de calibração foi a de redes sociais. Para que ela fosse construída utilizou-se a questão que mensurava quais das pessoas ou grupos de pessoas presente na questão forneceu apoio após a saída da CT. O valor total de grupos foi somado e o resultado dessa soma foi utilizado no processo de fuzzificação. O número máximo a ser obtido era 6 (suporte total) e o mínimo era 0 (nenhum suporte). A imagem abaixo demonstra a distribuição dos itens:
+  
+```{r imagem67, echo = FALSE, fig.cap = "Distribuição da variável de Redes Sociais", fig.pos = "H", fig.align='center', out.width="60%"}
+
+Xplot(dt$FS05_n, xlab = "Redes Sociais")
+
+```  
+  
+  É perceptível pela vala entre o 0 e o 2 que esse seria o primeiro dos limitadores, todos os outros pontos são preenchidos sem sobreposição. O algoritmo indicou como valores 1.0, 3.5 e 5.5. A tabela abaixo mostra a forma calibrada do dado. 
+  
+  
+```{r, include=FALSE}
+
+foring <- c(0,2,3,4,5,6)
+cond_cal <- c(0.02, 0.15, 0.36, 0.68, 0.9, 0.98)
+
+a <- cbind(foring, cond_cal)
+
+```
+
+```{r tab-redes, warning=FALSE, message=FALSE, echo=FALSE}
+library(knitr)
+library (kableExtra)
+
+kable (a, format = "latex", booktabs = TRUE,
+      caption = "Calibração dos itens da variável de Redes Sociais", col.names = c("Frequência Original", "Condição Calibrada")) %>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  row_spec(0, bold = TRUE)
+
+```  
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+
+
+  Encerrados os processos de Calibração resta realizar a análise e discutir os resultados encontrados.
+  
+
+## QCA
+
+### Truth Table e Minimização
+
+  A tabela abaixo mostra os resultados da primeira análise, que tece como _outcome_ a _Abstêmia_. Foi-se utilizado como valor de inclusão 0.8, o que implica que apenas as condições iguais ou superiores a este valor serão consideradas como as que contêm a presença do _Outcome_ (OUT = 1).
+  
++---------+-----------+---------+--------------------+---------+-----------+-----------+
+|         | conversão | redes   | OUTCOME (abstêmia) | n       | incl.cut  | PRI       |
++=========+===========+=========+====================+=========+===========+===========+
+| 1       | 0         | 0       | 0                  | 5       | 0.787     | 0.758     |
++---------+-----------+---------+--------------------+---------+-----------+-----------+
+| 2       | 0         | 1       | 1                  | 6       | **0.830** | 0.806     |
++---------+-----------+---------+--------------------+---------+-----------+-----------+
+| 3       | 1         | 0       | 0                  | 5       | 0.580     | 0.463     |
++---------+-----------+---------+--------------------+---------+-----------+-----------+
+| 4       | 1         | 1       | 0                  | 8       | 0.379     | 0.258     |
++---------+-----------+---------+--------------------+---------+-----------+-----------+
+Table: (\#tab:tt-abstemia) Tabela Verdade das Condições 
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+  
+  
+  Nota-se, logo de início, que a única combinação que foi suficiente para explicar o processo de Abstêmia foi a Presença de Redes Sociais e a Ausência de Conversão. O que indica, inicialmente, que a Conversão, dentro dos casos explorados, _não tem efeito_ sobre o resultado analisado. Ao contrário, não ser convertido e ter redes sociais foi o que gerou o resultado. Ainda é necessário, em ordem de confirmar os resultados, realizar a minimização da tabela, de forma de extrair a fórmula causal. Este processo foi feito utilizando o algoritmo de Quine-McCluskey e gerou o seguinte resultado:
+  
+
++----------------+-----------+---------+-------------+---------+
+|                | inclS     | PRI     | CovS        |CovU     |
++================+===========+=========+=============+=========+
+|\~conv\*redes   | 0.830     | 0.806   | 0.379       | \-      | 
++----------------+-----------+---------+-------------+---------+
+| M1             | 0.830     | 0.806   | 0.379       |         |
++----------------+-----------+---------+-------------+---------+
+
+Table: (\#tab:min-abstemia) Minimização da Tabela Verdade   
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter  
+  
+  A fórmula causal pode ser interpretada como:
+  
+$$ conversao * REDES \rightarrow Abstinencia $$  
+  
+  Como esperado, a fórmula confirma que a Conversão não tem efeito positivo sobre o outcome, dado que o mesmo só acontece em sua ausência. Apesar de constatar que, em relação a Abstêmia, ser Convertido não tem peso, resta saber de que forma ela afeta o processo de Recuperação. A tabela abaixo mostra os resultados.
+
++-------+-----------+-------+-----------------------+-------+-----------+--------+
+|       | conversão | redes | OUTCOME (recuperação) | n     | incl.cut  | PRI    |
++=======+===========+=======+=======================+=======+===========+========+
+| 1     | 0         | 0     | 1                     | 5     | **0.824** | 0.758  |
++-------+-----------+-------+-----------------------+-------+-----------+--------+
+| 2     | 0         | 1     | 1                     | 6     | **0.910** | 0.875  |
++-------+-----------+-------+-----------------------+-------+-----------+--------+
+| 3     | 1         | 0     | 0                     | 5     | 0.797     | 0.728  |
++-------+-----------+-------+-----------------------+-------+-----------+--------+
+| 4     | 1         | 1     | 0                     | 8     | 0.771     | 0.710  |
++-------+-----------+-------+-----------------------+-------+-----------+--------+
+
+Table: (\#tab:tt-recover) Tabela Verdade das Condições 
+
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter
+
+  Percebe-se que duas combinações obtiveram scores de suficiência válidos: Uma na qual nenhuma das duas condições ocorre e uma segunda na qual apenas as redes sociais são presentes. Apesar de ser claro que, no que diz respeito a Recuperação, as redes sociais tiveram um grande papel, dado o alto valor de suficiência, a minimização da tabela demonstra que o fator que corrobora com o processo é a Ausência de Conversão.  
+
+
++----------------+-----------+---------+-------------+---------+
+|                | inclS     | PRI     | CovS        |CovU     |
++================+===========+=========+=============+=========+
+|\~conv          | 0.796     | 0.755   | 0.532       | \-      | 
++----------------+-----------+---------+-------------+---------+
+| M1             | 0.796     | 0.755   | 0.532       |         |
++----------------+-----------+---------+-------------+---------+
+Table: (\#tab:min-recover) Minimização da Tabela Verdade   
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter  
+
+  A fórmula causal pode ser escrita como:
+
+$$ conversao \rightarrow Recuperacao $$  
+
+  Percebe-se que a Conversão, em ambos os resultados estudados, não gera efeitos positivos. Ser convertido não é algo que contribui com a abstinência, muito menos com a recuperação. A presença de redes de apoio, no entanto, se demonstrou fundamental para a explicação da Abstêmia e também tem um grande peso no processo de Recuperação, como é possível ver no gráfico de Necessidade abaixo.
+  
+```{r imagem68, echo = FALSE, fig.cap = "Relação de Necessidade", fig.pos = "H", fig.align='center', out.width="80%"}
+
+dt <- read.csv("~/efeitosconversao/data/dissert.csv")
+XYplot("recov", "redes", data = dt, xlab = "Solution model", relation = "necessity")  
+```  
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter 
+
+  Note que grande parte dos casos se concentram na área de aceitação de Necessidade. O que revela que a condição é necessária para que o outcome aconteça. O alto valor de inclusão também é um indicativo.
+
+
+## Discussão
+
+  A análise confirmou uma parte das suspeitas propostas pelas hipóteses: A Conversão não apareceu em todas as configurações possíveis de abstêmia/recuperação (H1) e não foi necessária ou suficiente para explicar as condições nas quais esses eventos ocorreram (H2). Outros elementos tiveram um peso maior do que ela e a sua ausência foi mais significativa para que o _outcome_ acontecesse. A QCA também conseguiu demonstrar que, mesmo em adição a outras condições, a Conversão Religiosa não produz, entre os casos estudados, efeitos significativos. Esse padrão pode ser percebido também ao se cruzar as variáveis utilizadas na análise em suas formas originais. Veja os gráficos abaixo:
+  
+  
+```{r, include=FALSE}
+
+a <- bd %>% 
+  group_by(R06) %>% 
+  summarise(mean = round(mean(FS06, na.rm = T),2)) %>% 
+  drop_na()
+
+b <- bd %>% 
+  group_by(R06) %>% 
+  summarise(median = median(QUANT_DROGAS, na.rm = T)) %>% 
+  drop_na()
+
+
+sol01 <- a %>% 
+  ggplot(aes(x = reorder(R06,-mean), y = mean)) +
+  geom_bar (stat = "identity", fill = uma) +
+  geom_text(aes(label=mean), position=position_dodge(width=0.9), vjust=-0.30) +
+  labs ( 
+    x = "Estados de Conversão",
+    y = "Média"
+    ) +
+  scale_x_discrete(labels = c("Ainda estou em processo de conversão" = "Ainda estou\nem processo\nde conversão", "Não existe algo como conversão na minha religião" = "Não existe algo\ncomo conversão\nna minha religião", "Não, eu não me considero convertido" = "Não, eu não\nme considero\nconvertido", "Sim, eu me considero convertido" = "Sim, eu me\nconsidero convertido"
+                              )) +
+  theme_minimal()
+
+
+
+sol02 <- b %>% 
+  ggplot(aes(x = reorder(R06,-median), y = median)) +
+  geom_bar (stat = "identity", fill = uma) +
+  geom_text(aes(label=median), position=position_dodge(width=0.9), vjust=-0.30) +
+  labs ( 
+    x = "Estados de Conversão",
+    y = "Média"
+    ) +
+  scale_x_discrete(labels = c("Ainda estou em processo de conversão" = "Ainda estou\nem processo\nde conversão", "Não existe algo como conversão na minha religião" = "Não existe algo\ncomo conversão\nna minha religião", "Não, eu não me considero convertido" = "Não, eu não\nme considero\nconvertido", "Sim, eu me considero convertido" = "Sim, eu me\nconsidero convertido"
+                              )) +
+  theme_minimal()
+
+```
+  
+```{r imagem69, echo = FALSE, fig.cap = "Conversão e Nota média na Escala de Recuperação", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot(sol01)  
+```
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter 
+
+
+```{r imagem70, echo = FALSE, fig.cap = "Conversão e Mediana do número de drogas utilizadas após a saída da CT", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot(sol02)  
+```
+  
+\bcenter
+Fonte: Do Autor, 2021
+\ecenter 
+
+  Note que as notas entre Não convertidos e Convertidos na Escala de Recuperação são bem próximas. Apesar disso, o que parece ser o maior determinante do argumento aqui empregado é que os Não Convertidos foram os únicos que pontuaram 0 na mediana do número de drogas consumidas no período pós CT. Tudo isto serve como forte indicativo de que o papel que essa variável tem nos casos estudados é quase nulo. Percebe-se também, ao mesmo tempo que se constata que a Conversão não obteve peso significativo no processo, que a Religiosidade não parece ser um catalisador de recuperação entre os casos estudados, o que vai contra a primeira hipótese desse estudo sugeria. A análise descritiva confirmou que pessoas religiosas e não religiosas parecem experimentar os mesmos níveis de melhora.
+  
+  Tais achados, mesmo que um tanto controversos, estão em consonância com o que foi aqui discutido. Vaglum [-@vaglum_why_1985], Shields _et al._ [-@shields_religion_2007] e até mesmo Perrone [-@perrone_fatores_2019] dão alguns indícios de que a Conversão Religiosa não tem tanto peso em si e que os efeitos da Religião pertencem a outras searas como a das Relações Sociais e Pessoais. Percebe-se também que a aquisição da Gramática pelos convertidos, que é o mecanismo até então utilizado para explicar a relação entre Conversão e Abstêmia, não demonstrou efeito algum entre os sujeitos pesquisados. Em outras palavras, os processos de descontinuidade não foram suficientes, ou muito menos necessários, para promover um estado de "estar limpo". De fato, como demonstrado, foram os não convertidos que permaneceram abstêmios após o tratamento.
+  
+  Mesmo desmistificando o efeito da Conversão, esse achado evidencia um outro processo que é relegado ao segundo plano e que se demonstrou poderoso para explicar ambos os processos analisados neste estudo: As Relações Sociais. Pouco se discute, no âmbito das categorias de cuidado, sobre uma rede de apoio para o Egresso. O foco da discussão, como visto até agora, é sobre trazer mais gente para dentro das CT's, criar mais vagas e dominar as políticas de drogadição. O destino que essas pessoas têm após a passagem não tende a ser muito discutido. As poucas pesquisas nacionais sobre egressos que existem apontam para a importância do contato com círculos sociais, em especial a família [@da2016reinserccao; @ramos2018reinserccao] no processo de Recuperação. Até mesmo os contatos criados através da espiritualidade/religião se tornam benéficos, em parte, por causa da criação de novos círculos sociais, sendo a falta de apoio um dos principais motivos para o relapso [@costa2001processo]. Percebe-se, por fim, que trabalhar na criação de "Comunidades" após a saída da "Comunidade" é o melhor caminho para não se precisar voltar para ela.      
+  
+  É importante ter em mente, no entanto, que este estudo é um dos primeiros no campo nacional a discutir efeitos de uma parte específica da Religião sobre processos referentes a Abstêmia/Recuperação no caso das CT's nacionais. É importante que se tome as contribuições aqui fornecidas com certa cautela, dado que mais estudos com metodologias variadas devam ser feitos na temática em ordem de consolidar os resultados. 
+  
+  Dito isto, alguns destaques ainda podem ser feitos. O primeiro é que o fato de que a Conversão Religiosa não demonstrou efeito é um indicativo de que a prática de a incentivar deve ser revista. Não apenas por representar, em algum nível, um tabu ético, mas porque se demonstrou em estudo científico ineficaz. O segundo é que as suspeitas levantadas na segunda e terceira hipóteses se comprovaram, em parte, reais. O Governo Federal realmente está investindo em técnicas que coadunam com condições que não produzem o efeito esperado. Investir em Abstêmia e instituições que promovem Conversão/Filiação Religiosa, ao invés de investir na produção de Redes de Apoio e Segurança que possam proteger e auxiliar o egresso em sua jornada de volta a sociedade, se provou no estudo aqui feito um feito perigoso e com baixas possibilidades de retorno positivo.
+  
+  Para além disso, percebe-se que as suspeitas levantadas anteriormente sobre o processo de ascensão das CT's ser apenas uma parte de um plano maior de dominação conservadora, e não uma pauta de cuidado altruísta, foram, em parte, confirmadas. A religiosidade empregada durante o processo não colaborou, nos casos observados, com nenhum dos processos que as próprias instituições dizem realizar.
+  
+  Cabe, enfim, as autoridades e órgãos públicos a criação e investimento de estudos com maior calibre sobre a temática, em ordem de avaliar se vale realmente a pena financiar instituições que promovem ações sem eficácia terapêutica. Estudos Longitudinais são mais que bem vindos nesse sentido, dado que grande parte das pesquisas focam nos sujeitos que dão entrada em CT's, seja de forma espontânea ou não. Pouco se sabe ou se procura saber sobre quem já saiu e quais efeitos (no sentido causal de efeito) as práticas as quais foram submetidas tiveram em suas vidas e no seu processo de recuperação.  
+
+  

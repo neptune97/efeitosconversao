@@ -1,0 +1,1727 @@
+# Análises Descritivas
+
+  Após discutir sobre a teoria que embasa essa pesquisa e sobre a metodologia que irei utilizar para tratar e interpretar os dados, resta demonstrar os resultados obtidos. 32 pessoas responderam o questionário e, neste capítulo, irei fazer uma análise descritiva básica, de forma a entender melhor quem são, de onde vieram e como foi a relação deles com as drogas e o tratamento.
+
+```{r data, echo = FALSE, message= FALSE, warning=FALSE}
+library (readxl)
+library (tidyverse)
+library (geobr)
+bd <- read_excel("data/dados_mestrado.xlsx")
+```
+
+```{r maps, echo = FALSE, message= FALSE, warning=FALSE, include = FALSE}
+estados <- read_state(code_state = "all")
+
+estados <- estados %>% 
+  mutate (
+    CT = case_when(
+      name_state == "Rondônia" ~ 0,
+      name_state == "Acre" ~ 0,
+      name_state == "Amazonas" ~ 0,
+      name_state == "Pará" ~ 0,
+      name_state == "Roraima" ~ 0,
+      name_state == "Amapá" ~ 0,
+      name_state == "Tocantins" ~ 1,
+      name_state == "Maranhão" ~ 1,
+      name_state == "Piauí" ~ 1,
+      name_state == "Ceará" ~ 11,
+      name_state == "Rio Grande Do Norte" ~ 0,
+      name_state == "Paraíba" ~ 0,
+      name_state == "Pernambuco" ~ 0,
+      name_state == "Alagoas" ~ 0,
+      name_state == "Sergipe" ~ 0,
+      name_state == "Bahia" ~ 0,
+      name_state == "Minas Gerais" ~ 5,
+      name_state == "Espirito Santo" ~ 0,
+      name_state == "Rio De Janeiro" ~ 2,
+      name_state == "São Paulo" ~ 4,
+      name_state == "Paraná" ~ 2,
+      name_state == "Santa Catarina" ~ 1,
+      name_state == "Rio Grande Do Sul" ~ 2,
+      name_state == "Mato Grosso Do Sul" ~ 1,
+      name_state == "Mato Grosso" ~ 0,
+      name_state == "Goiás" ~ 0,
+      name_state == "Distrito Federal" ~ 0
+    ),
+    CT_R = case_when(
+      name_region == "Norte" ~ 1,
+      name_region == "Nordeste"~ 14,
+      name_region == "Sul" ~ 5,
+      name_region == "Sudeste" ~ 11,
+      name_region == "Centro Oeste" ~ 0
+    )
+  )
+```
+
+```{r graphs, echo = FALSE, message= FALSE, warning=FALSE}
+anal1 <- estados %>% 
+  ggplot() +
+  geom_sf(aes(fill = CT)) +
+  labs (
+    fill = "Número de respondentes\npor Estado"
+  ) +
+  theme_minimal() +
+  scale_fill_gradient (low = "#DFD0BB", high = "#CC7952", space = "Lab",
+                       guide = "colourbar",
+                       aesthetics = "fill")
+
+anal2 <- estados %>% 
+  ggplot() +
+  geom_sf(aes(fill = CT_R)) +
+  labs (
+    fill = "Número de respondentes\npor Região"
+  ) +
+  theme_minimal() +
+  scale_fill_gradient (low = "#DFD0BB", high = "#CC7952", space = "Lab",
+                       guide = "colourbar",
+                       aesthetics = "fill") +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+
+```
+
+## Amostra
+
+  Nesta pesquisa utilizou-se Amostragem Não-Probabilística, dado que não é possível ter acesso a toda população e não se sabe a probabilidade de uma pessoa escolhida aleatoriamente ser egressa de uma CT. A forma de encontrar respondentes foi a _Intencional_ [@babbie_practice_2015,187], ou seja, ao invés de selecionar de forma aleatória dentro da população os indivíduos que se encaixavam no padrão exigido, foi-se feita uma busca ativa delas em lugares onde já se tinha conhecimento prévio de que elas estariam, tais como grupos de Facebook e Whatsapp direcionados a este público. 
+  
+  Esse tipo de amostra, apesar de ser conveniente ao estudo, tem como contraponto não ser capaz de generalização. O que se afirma com esse estudo não tem poder de representar todas as pessoas que se encaixam no perfil pesquisado. 
+
+
+## Dados Socioeconômicos
+
+  Na primeira seção do questionário o respondente era convidado a responder uma série de perguntas que ajudassem a criar um perfil socioeconômico. Um dos primeiros dados que gostaria de salientar, antes de começar a descrição de fato, é o da localização dos respondentes. A imagem abaixo demonstra o quantitativo por região.
+
+```{r imagem22, echo = FALSE, fig.cap = "Número de respondentes por Região", fig.pos = "H", fig.align='center', out.width="90%" }
+
+plot (anal2)
+```
+
+\bcenter
+Fonte: ECRIECT^[Acrônimo para _Efeitos da Conversão Religiosa entre Egressos de Comunidades Terapêuticas_], 2021
+\ecenter
+
+  A maioria dos respondentes são do Ceará (35%), ficando em segundo lugar Minas Gerais (16%) e em terceiro São Paulo (12%). A única região da qual não se obtiveram respostas foi a Centro-Oeste.
+
+  Em relação a idade dos participantes grande parte tem entre 20 e 30 anos, sendo a menor idade 21 e a maior 56. As faixas de idade podem ser conferidas no gráfico abaixo:
+
+```{r graph-idade, echo = FALSE, message= FALSE, warning=FALSE}
+
+bd$fx_idade <- cut(bd$S01, breaks=c(20,30,40,50), labels=c("20|-30","30|-40","40|-50"), right=FALSE)
+
+bd2 <- bd %>% 
+  select(fx_idade) %>% 
+  mutate (fx_idade = as.factor(fx_idade)) %>% 
+  drop_na()
+
+anal3 <- bd2 %>% 
+  ggplot(aes(x = fx_idade)) +
+  geom_bar(fill = uma) +
+  labs (
+    y = "Frequência",
+    x = "Faixa de Idade"
+  ) +
+  theme_minimal()
+
+```
+
+```{r imagem23, echo = FALSE, fig.cap = "Faixas de Idade dos Respondentes", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal3)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Mais da metade dos respondentes são homens (58%) e, no que diz respeito ao Estado Civil, 31% são solteiros, nunca tendo sido casados. Ao observar este último dado por sexo, no entanto, é possível ver que esse padrão se aplica melhor aos homens. As mulheres pesquisadas são, em maioria, divorciadas.
+
+```{r graph-civil-sex, echo = FALSE, message= FALSE, warning=FALSE}
+
+bd3 <- bd %>% 
+  group_by(S03) %>% 
+  count (S05) %>% 
+  drop_na()
+
+bd3$S03 <- factor (bd3$S03, levels = c("Masculino", "Feminino"))
+
+anal4 <- bd3 %>% 
+  ggplot(aes(x = S05, y = n, fill = S03, label = n)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    y = "Proporção",
+    x = "Estado Civil",
+    fill = "Sexo"
+  ) +
+  scale_x_discrete(labels = c("Casado(a)" = "Casado(a)", "Divorciado(a)" = "Divorciado(a)", "Separado(a)" = "Separado(a)",
+                              "Solteiro(a), mas vivendo com um(a) companheiro(a)" = "Solteiro(a),\nmas vivendo\ncom um(a)\ncompanheiro(a)", 
+                              "Solteiro(a), nunca tendo sido casado(a)" = "Solteiro(a),\nnunca tendo\nsido casado(a)")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+```
+
+```{r imagem24, echo = FALSE, fig.cap = "Relação entre Sexo e Estado Civil", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal4)
+```
+
+\bcenter
+Fonte: ECRIECT\glsunset{ECRIECT}, 2021
+\ecenter
+
+  Em relação a filhos, 31% afirma não os ter e dentre os que tem o maior número é 2 (25%). Apenas dois respondentes afirmaram ter mais de 4. No que diz respeito a contato apenas 2 afirmaram não ter mais nenhum.
+
+  No que diz respeito a trabalho todos os respondentes afirmaram atuar no setor de serviços, sendo Vendedor (20%) e Autônomo (12%) as profissões mais comuns. A tabela abaixo mostra todas as profissões fornecidas:
+
+```{r, include = FALSE}
+
+prof <- c("Artesã", "Lavadeira", "Atendente", "Autonomo", "Auxiliar de Serviços", "Caixa de Supermercado", "Conselheiro em Dependência Química", "Desempregado", "Secretária do lar", "Entregador", "Funcionário público aposentado", "Mecânico", "Motorista de aplicativo", "Recepcionista", "Servente", "Técnica de Enfermagem", "Terapeutico conselheireiro", "Vendedor", "NA/NR", "Total")
+
+n <- c(1, 1, 1, 4, 1, 1, 1, 4, 2, 1, 1, 1, 2, 1, 1, 1, 1, 6, 1, 32)
+
+trab <- cbind (prof, n)
+
+```
+
+```{r trab, warning=FALSE, message=FALSE, echo=FALSE}
+
+kable (trab, format = "latex", booktabs = TRUE, caption = "Atual profissão dos respondentes", col.names = c("Profissões", "Frequências")) %>%
+  kable_styling(latex_options = "HOLD_position") %>% 
+  row_spec(0, bold = TRUE)
+
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Ao dividir todas essas profissões em subgrupos de serviços, guiados pelo modelo de divisão disposto pela _Classificação Nacional de Atividades Econômicas_ (CNAE) [@ibge_pesquisa_2005], é possível visualizar de forma mais acurada a variação nas atividades. Gostaria de destacar que uma parte dos entrevistados atua em CT's, logo criou-se um grupo específico para eles. O gráfico abaixo demonstra, enfim, esta divisão:
+
+```{r, include = FALSE}
+
+grup <- c("Comércio","Comunidades Terapêuticas", "Serviços Domésticos", "Serviços prestados a Empresas", "Autônomo", "Transporte", "Atividades Imobiliárias",
+          "Saúde")
+
+n <- c(8,2,2,5,4,2,1,1)
+
+trab <- data.frame(grup, n)
+
+anal5 <- trab %>%
+  ggplot(aes(x= reorder(grup,-n), y = n)) +
+  geom_bar(stat = "identity", fill = uma) +
+  labs (
+    y = "Frequência",
+    x = "Grupo de Profissão"
+  ) +
+  scale_x_discrete(labels = c("Comércio" = "Comércio", "Comunidades Terapêuticas" = "Comunidades\nTerapêuticas", "Serviços Domésticos" = "Serviços\nDomésticos", "Serviços prestados a Empresas" = "Serviços\nprestados\na Empresas", "Atividades Imobiliárias" = "Atividades\nImobiliárias")) +
+  theme_minimal()
+
+
+```
+
+```{r imagem25, echo = FALSE, fig.cap = "Profissões divididas por Subgrupos de Serviços", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal5)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  O último dado coletado nesta seção foi a idade com a qual o respondente começou a trabalhar. 84% dos respondentes começaram a trabalhar antes dos 18 anos, sendo a menor idade 10 anos. Não obstante, ao observar esse dado por sexo percebe-se que, apesar dos homens serem a maioria entre os que trabalharam antes de atingir a maior idade, todas as mulheres entrevistadas passaram por esse processo.
+
+```{r, include=FALSE}
+
+bd$fxidade_trab <- cut(bd$S08, breaks = c(10, 18, 20), labels = c("Menor de Idade", "Maior de Idade"))
+
+bd5 <- bd %>% 
+  group_by(S03) %>% 
+  count (fxidade_trab) %>% 
+  drop_na()
+  
+
+anal7 <- bd5 %>%
+  ggplot(aes(x= fxidade_trab, y = n, fill = S03)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Faixa de Idade",
+    y = "Proporção",
+    fill = "Sexo"
+  ) +
+  scale_fill_manual(values = duas) +
+  theme_minimal()
+   
+ 
+```
+
+```{r imagem27, echo = FALSE, fig.cap = "Relação entre Idade com a qual começou a trabalhar e Sexo", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal7)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+\pagebreak
+
+## Dados Religiosos
+
+  Para além de entender as características socioeconômicas dos respondentes, o questionário também coletou dados da vida religiosa, em ordem de entender seus trânsitos, se são convertidos e quanto de sua vida é relacionado a religião. 59% dos entrevistados alegaram, no momento da pesquisa, frequentar algum culto/religião. O gráfico abaixo demonstra as respostas que foram fornecidas:
+
+```{r, include=FALSE}
+
+bd6 <- bd %>% 
+  select(R02) %>% 
+  count (R02) %>% 
+  drop_na()
+
+
+anal8 <- bd6 %>% 
+  ggplot(aes(x = reorder(R02,-n), y = n)) +
+  geom_bar(stat ="identity", fill = uma) +
+  labs (
+    x = "Religião/Culto",
+    y = "Frequência"
+  ) +
+  theme_minimal()
+
+```
+
+```{r imagem28, echo = FALSE, fig.cap = "Religiões respondidas pelos participantes", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal8)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  É possível perceber que a maioria é Protestante, sendo seguida pelos Sem Filiação e, por fim, Católicos. Nesta pesquisa, ao contrário do que vem sendo usado como padrão na coleta de dados quantitativos sobre religião no Brasil, utilizei uma pergunta _double-step_ para melhor capturar a filiação de religiões com mais de uma forma, no caso o protestantismo. O gráfico abaixo destrincha melhor as especificações coletadas. 
+  
+  Dentre os Protestantes a maioria frequenta a Assembleia de Deus ou alguma outra Pentecostal, poucos dizem pertencer a correntes mais históricas como a Presbiteriana.
+
+```{r, include=FALSE}
+
+bd7 <- bd %>% 
+  select(R02B) %>% 
+  count (R02B) %>% 
+  drop_na()
+
+
+anal9 <- bd7 %>% 
+  ggplot(aes(x = reorder(R02B,-n), y = n)) +
+  geom_bar(stat ="identity", fill = uma) +
+  labs (
+    x = "Religião/Culto",
+    y = "Frequência"
+  ) +
+  scale_x_discrete(labels = c("Assembléia de Deus" = "Assembléia\nde Deus", "Outra Pentecostal" = "Outra\nPentecostal" ,"Igreja do Evangelho Quadrangular" = "Igreja do\nEvangelho\nQuadrangular", "Igreja Universal do Reino de Deus" = "IURD", "Igreja de Deus em Cristo" = "Igreja de\nDeus em\nCristo", "Igreja Presbiteriana" = "Igreja\nPresbiteriana", "Deus é Amor" = "Deus\né Amor", "Igreja Cristã" = "Igreja\nCristã")) +
+  theme_minimal()
+
+```
+
+```{r imagem29, echo = FALSE, fig.cap = "Ramificações protestantes respondidas pelos participantes", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal9)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Mesmo que a pergunta sobre Religião não fosse aberta a todos, a pergunta sobre frequência com que se vai a Igreja/Culto era. Dessa forma foi possível avaliar, mesmo se a pessoa não alegasse ter filiação, se ainda existia algum nível de contato com religião. O gráfico abaixo demonstra essa relação.
+
+```{r, include=FALSE}
+
+relig <- c("Católica", "Católica", "Protestante/Evangélica", "Protestante/Evangélica", "Protestante/Evangélica", "Sem Filiação", "Sem Filiação", "Sem Filiação")
+
+freq <- c("Apenas no fim de semana", "Somente em ocasiões especiais", "Apenas no fim de semana",
+          "Mais que três vezes na semana", "Somente em ocasiões especiais", "Apenas no fim de semana", "Não frequento ou visito nenhuma igreja", "Quase nunca")
+
+n <- c(1,2,10,5,1,1,4,6)
+
+bd10 <- tibble (relig, freq, n)
+
+bd10$freq <- factor (bd10$freq, levels = c("Não frequento ou visito nenhuma igreja","Quase nunca", "Somente em ocasiões especiais",
+                                           "Apenas no fim de semana", "Mais que três vezes na semana"))
+
+anal10 <- bd10 %>% 
+  ggplot(aes(x = freq, y = n, fill = relig)) +
+  geom_bar(stat ="identity", position = "fill") +
+  labs (
+    x = "Frequência",
+    y = "Proporção",
+    fill = "Religião"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank")) +
+  scale_fill_manual(values = tres) 
+```
+
+```{r imagem30, echo = FALSE, fig.cap = "Relações entre Frequência com a qual vai a Igreja e Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal10)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+  Curiosamente, uma pequena parte dos que disseram ser Sem Filiação ainda frequentam a igreja aos fins de semana. Para além disso percebe-se que as maiores frequências se encontram entre os Protestantes.
+
+  Outra temática abordada durante o questionário foi a vivência de experiências sobrenaturais. Pelo menos 13 respondentes (43%) afirmaram ter experienciado algo do tipo. No gráfico abaixo temos a relação deles:
+
+```{r, include=FALSE}
+exp <- c("Orar em línguas", "Batismo no Espírito Santo", "Possessão Demoníaca", "Cura de Doenças")
+n <- c(6,9,3,6)
+
+expREL <- tibble(exp,n)
+
+anal11 <- expREL %>% 
+  ggplot(aes (x = exp, y = n)) +
+  labs (
+    x = "Experiência Religiosa/Sobrenatural",
+    y = "Frequência"
+  ) +
+  geom_bar(stat = "identity", fill = uma) +
+  theme_minimal()
+
+
+```
+
+```{r imagem31, echo = FALSE, fig.cap = "Experiências Religiosas/Sobrenaturais", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal11)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Ao ver como essas experiências se dividem por religião percebe-se que Católicos foram menos propensos a vivências desse tipo, enquanto pessoas Sem Filiação já afirmaram ter vivenciado algumas delas
+
+```{r, include=FALSE}
+rel <- c(rep("Católico", 4), rep("Protestante/Evangélico",4), rep("Sem Filiação",4))
+exp <- c("Orar em línguas", "Batismo no Espírito Santo", "Possessão Demoníaca", "Cura de Doenças")
+n <- c(0,0,0,0,4,4,1,4,1,2,1,0)
+
+expREL <- data.frame (rel,exp,n)
+expREL <- tibble (expREL)
+
+anal12 <- expREL %>% 
+  ggplot(aes (x = exp, y = n, fill = rel)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Experiência Religiosa/Sobrenatural",
+    y = "Proporção",
+    fill = "Religião"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank")) +
+  scale_fill_manual(values = tres) 
+
+
+```
+
+```{r imagem32, echo = FALSE, fig.cap = "Experiências Religiosas/Sobrenaturais por Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal12)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Um dos dados mais importantes desta seção foram as perguntas direcionadas a questão da Conversão Religiosa. A pergunta, como dito anteriormente, possui 4 níveis: "Sou convertido", "Não sou convertido", "Estou em processo de Conversão" e "Não existe algo como conversão na minha religião", dessa forma ela conseguia abarcar o espectro da questão de forma coesa. Seguem abaixo os resultados.
+
+```{r, include=FALSE}
+  
+bd11 <- bd %>% 
+  count (R06) %>% 
+  drop_na()
+
+anal13 <- bd11 %>% 
+  ggplot(aes(x = reorder(R06, -n), y = n)) +
+  geom_bar (stat = "identity", fill = uma) +
+  labs ( 
+    x = "Estados de Conversão",
+    y = "Frequência"
+    ) +
+  scale_x_discrete(labels = c("Ainda estou em processo de conversão" = "Ainda estou\nem processo\nde conversão", "Não existe algo como conversão na minha religião" = "Não existe algo\ncomo conversão\nna minha religião", "Não, eu não me considero convertido" = "Não, eu não\nme considero\nconvertido", "Sim, eu me considero convertido" = "Sim, eu me\nconsidero convertido"
+                              )) +
+  theme_minimal()
+
+
+
+```
+
+```{r imagem33, echo = FALSE, fig.cap = "Estados de Conversão", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal13)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Note que o número de convertidos e não convertidos é o mesmo e que número de pessoas que admitiram estar em um processo de conversão também foi relativamente alto. A opção com menos respondentes foi "Não existe algo como Conversão na minha religião" o que soa, num primeiro momento, estranho, dado que as duas religiões que aparecem como respostas admitem processos de Conversão. Ao observar esse dado por religião, no entanto, percebe-se que as pessoas que forneceram essa resposta são, majoritariamente, Católicas. Isso ajuda a endossar a visão de que a identidade católica é, pelo menos entre uma parte dos entrevistados, não uma opção ou parte de um processo, mas um elemento não necessariamente adesional, advindo da tradição [@pierucci_religiao_2006]. Outro ponto a ser destacado é a presença dos Sem Filiação na opção "Estou em processo de Conversão", o que demonstraria que conseguiu-se captar a adoção de modelos de vivência religiosa mais fluidos e menos institucionalizados.
+
+```{r, include=FALSE}
+library (tidyverse)
+
+bd69 <- bd %>% 
+  group_by(R02) %>% 
+  count (R06) %>% 
+  drop_na()
+
+bd69$R06 <- factor(bd69$R06, levels = c("Não existe algo como conversão na minha religião","Não, eu não me considero convertido", "Ainda estou em processo de conversão", "Sim, eu me considero convertido"))
+
+anal14 <- bd69 %>% 
+  ggplot(aes(x = R06, y = n, fill = R02)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs( 
+    x = "Estados de Conversão",
+    y = "Proporção",
+    fill = "Religião"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", size=0.7, linetype="blank")) +
+  scale_fill_manual(values = tres, labels = c("Católica", "Protestante", "Sem\nReligião"))
+
+
+```
+
+```{r imagem34, echo = FALSE, fig.cap = "Estados de Conversão por Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal14)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Às pessoas que responderam ser convertidas ou estarem no processo foi-se perguntado aonde esse processo se iniciou. 62.5% delas afirmaram que esse processo se iniciou dentro da Comunidade Terapêutica que deram entrada. Um dado expressivo que ajuda a apoiar a tese levantada neste estudo de que as CT's promovem esse tipo de processo. Um outro dado encontrado foi que alguns dos Sem Filiação foram, em algum momento, convertidos e esse processo também aconteceu, em parte, dentro de CT's.
+
+```{r, include=FALSE}
+  
+rel <- c(rep("Católico", 2), rep("Protestante/Evangélico", 2), rep("Sem Filiação", 2))
+est <- c("Dentro da Comunidade Terapêutica", "Fora da Comunidade Terapêutica")
+n <- c(0,0,7,5,3,1)
+
+relconv <- data.frame (rel, est, n)
+
+
+anal15 <- relconv %>% 
+  ggplot(aes(x = est, y = n, fill = rel)) +
+  geom_bar (stat = "identity", position = "fill") +
+  labs ( 
+    x = "Local de Início da Conversão",
+    y = "Proporção",
+    fill = "Religião"
+    ) +
+  theme_minimal() +
+  coord_flip() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank")) +
+  scale_fill_manual(values = tres) 
+
+```
+
+```{r imagem35, echo = FALSE, fig.cap = "Local de Conversão por Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal15)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Outro dado coletado durante a pesquisa foi relacionado as frequências com que os respondentes faziam atividades exclusivamente religiosas ou que envolvessem, em algum nível, religião. Foram dadas 4 opções: Orar, Ler a Bíblia, Conversar com pessoas ao seu redor sobre fé e Ir para outras atividades oferecidas pela igreja que você frequenta. Os resultados se encontram abaixo:
+
+```{r, include=FALSE}
+library (reshape2)
+
+bd20 <- bd %>%
+  select(R08A, R08B, R08C, R08D)
+
+b <- melt(bd20, measure.vars = c("R08A", "R08B", "R08C", "R08D"), id.vars = character())
+
+b <- b %>% 
+  group_by(variable) %>% 
+  count (value) %>% 
+  drop_na()
+
+b$value <- factor (b$value, levels = c("Nunca", "Raramente", "As vezes", "Quase sempre", "Sempre"))
+
+anal16 <- b %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Atividades",
+    y = "Proporção",
+    fill = "Frequência"
+  ) +
+  scale_x_discrete(labels = c("R08A" = "Vai para outras atividades\noferecidas pela igreja\nque você frequenta", "R08B" = "Lê a\nBíblia",
+                              "R08C" = "Ora", "R08D" = "Conversa com as pessoas\nao seu redor sobre\na sua fé/religião")) +
+  scale_fill_manual(values = cinco) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", size=0.7, linetype="blank"))
+  
+```
+
+```{r imagem36, echo = FALSE, fig.cap = "Atividades Religiosas praticadas pelos respondentes", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal16)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Vendo por religião é possível perceber alguns padrões intrigantes. Entre os católicos as atividades mais praticadas são a Oração e a Conversa sobre a Fé. Ler a Bíblia e frequentar atividades oferecidas pela igreja são as atividades com menor frequência. Já entre os Protestantes todas as atividades propostas pela questão são praticadas em algum nível, sendo Orar e Ler a Bíblia as com maior intensidade, os poucos "nunca" respondidos foram para atividades como "conversar sobre a fé" e "ir para atividades extras da igreja que frequenta. Entre os Sem Filiação "orar" foi a única atividade feita com maior frequência. Apesar disso outras atividades como Conversar sobre a Fé e Ler a Bíblia também foram elencadas como feitas "às vezes".
+
+```{r, include=FALSE}
+
+library (reshape2)
+
+bd20 <- bd %>%
+  select(R02, R08A,R08B, R08C, R08D)
+
+b <- melt(bd20, measure.vars = c("R08A", "R08B", "R08C", "R08D"), id.vars = c("R02"))
+
+c <- b %>% 
+  group_by(variable,R02) %>% 
+  count (value) %>% 
+  drop_na()
+
+c$value <- factor (c$value, levels = c("Sempre", "Quase sempre", "As vezes", "Raramente", "Nunca"))
+
+anal17 <- c %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Atividades",
+    y = "Proporção",
+    fill = "Frequência"
+  ) +
+  scale_x_discrete(labels = c("R08A" = "Vai para outras atividades\noferecidas pela igreja\nque você frequenta", "R08B" = "Lê a\nBíblia", "R08C" = "Ora", "R08D" = "Conversa com as pessoas\nao seu redor sobre\na sua fé/religião")) +
+  scale_fill_manual(values = cinco, labels = c("Sempre" = "Sempre", "Quase sempre" = "Quase\nsempre", "As vezes" ="As\nvezes","Raramente"="Raramente", "Nunca" = "Nunca")) +
+  theme_minimal() +
+  coord_flip() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", size=0.7, linetype="blank")) +
+  theme(strip.background = element_blank()) +
+  facet_wrap(~R02)
+  
+```
+
+```{r imagem37, echo = FALSE, fig.cap = "Atividades Religiosas praticadas pelos respondentes por Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal17)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Para além de entender filiação, frequência religiosa e nível de cometimento com elementos religiosos também se procurou atentar a crença em elementos religiosos, de forma a capturar o nível de aceitação de elementos ditos teológicos. De forma simples era mostrado aos respondentes alguns elementos referentes ao campo religioso e eles deveriam responder se acreditavam ou não. O gráfico abaixo dispõe dos resultados.
+
+```{r, include=FALSE}
+
+bd21 <- bd %>%
+  select(R09A,R09B, R09C, R09D, R09E, R09F) %>% 
+  drop_na()
+
+bd22 <- melt(bd21, measure.vars = c("R09A", "R09B", "R09C", "R09D", "R09E", "R09F"), id.vars = character())
+
+bd22 <- bd22 %>% 
+  group_by(variable) %>% 
+  count (value)
+
+anal18 <- bd22 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Elementos",
+    y = "Proporção",
+    fill = "Crença"
+  ) +
+  scale_x_discrete(labels = c("R09A" = "Deus", "R09B" = "Anjos", "R09C" = "Demônios", "R09D" = "Vida após a morte", "R09E" = "Espírito", "R09F" = "Milagres")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+
+```
+
+```{r imagem38, echo = FALSE, fig.cap = "Crenças em elementos teológicos", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal18)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  O elemento do campo religioso que mais se acredita é Deus (93%) e o que menos se crê são Milagres (41%). Ao observar esse comportamento por religião percebe-se que os Sem Filiação são os que possuem os maiores níveis de descrença, sendo os únicos entre os entrevistados a não acreditarem em Deus. Católicos foram os únicos que manifestaram níveis totais de crença em elementos além de Deus, como Vida após a morte e demônios. Apesar disso, entre os religiosos, eles foram os menos acreditaram em milagres.
+  
+  
+```{r, include=FALSE}
+
+bd22 <- bd %>%
+  select(R02, R09A,R09B, R09C, R09D, R09E, R09F) %>% 
+  drop_na()
+
+bd23 <- melt(bd22, measure.vars = c("R09A", "R09B", "R09C", "R09D", "R09E", "R09F"), id.vars = "R02")
+
+bd23 <- bd23 %>% 
+  group_by(variable, R02) %>% 
+  count (value)
+
+anal19 <- bd23 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Elementos",
+    y = "Proporção",
+    fill = "Crença"
+  ) +
+  scale_x_discrete(labels = c("R09A" = "Deus", "R09B" = "Anjos", "R09C" = "Demônios", "R09D" = "Vida após a morte", "R09E" = "Espírito", "R09F" = "Milagres")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank")) +
+  coord_flip() +
+  facet_wrap(~R02)
+
+
+```  
+  
+```{r imagem39, echo = FALSE, fig.cap = "Crenças em elementos teológicos por Religião", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal19)
+```  
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter  
+
+
+\pagebreak
+
+## Histórico de Uso Abusivo
+
+  Uma das últimas seções do questionário se dedicou a coletar dados sobre o antes, durante e depois do uso abusivo de drogas. Visando capturar as relações sociais dos sujeitos antes e depois desse período, características das CT's aonde fizeram passagens e como eles se encontram atualmente. Um dos primeiros pontos da seção foi o quantitativo de drogas com a qual o entrevistado teve contato. Segue abaixo a frequência com a qual elas foram citadas. 
+
+
+```{r, include=FALSE}
+
+bd23 <- bd %>%
+  select(D02A, D02B, D02C, D02D, D02E, D02F, D02G, D02H,D02I, D02J, D02K, D02L, D02M,D02N)
+
+bd24 <- melt(bd23, measure.vars = c("D02A", "D02B", "D02C", "D02D", "D02E", "D02F", "D02G", "D02H", "D02I", "D02J",
+                                   "D02K", "D02L", "D02M", "D02N"), id.vars = character())
+
+bd24 <- bd24 %>%
+  group_by(variable) %>% 
+  count (value) %>% 
+  drop_na()
+  
+anal20 <- bd24 %>% 
+  ggplot(aes(x = reorder(value,-n), y = n)) +
+  geom_bar(stat ="identity", fill = uma) +
+  labs (
+    x = "Substância",
+    y = "Frequência"
+  ) +
+  theme_minimal() +
+  coord_flip()
+
+```
+
+```{r imagem40, echo = FALSE, fig.cap = "Substâncias utilizadas pelos entrevistados", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal20)
+``` 
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Os respondentes usavam durante o período de uso abusivo, em média, 4 substâncias diferentes. O maior número obtido foi 13. No que diz respeito ao grau de vício optei por uma escala de auto declaração de 0 a 10. A média obtida foi 9,03 o que indica que os respondentes acreditavam ser extremamente dependentes no período de uso. Até mesmo a mediana, medida mais robusta a presença de _outliers_, foi 9. Uma comparação entre o número de substâncias utilizadas e a nota dada a si mesmo nessa escala é oferecida abaixo:
+
+```{r, include=FALSE}
+
+bd24 <- bd %>% 
+  select(D02O, D03) %>% 
+  mutate(n = 1:32) %>% 
+  drop_na()
+
+bd25 <- melt (bd24, measure.vars = c("D02O", "D03"), id.vars = "n")
+
+anal21 <- bd25 %>% 
+  ggplot(aes(x = n, y = value, group = variable, color = variable)) +
+  geom_line() +
+  geom_point() +
+  labs (
+    x = "Frequência",
+    y = "Escala de Adicção",
+    color = "Legenda"
+  ) +
+  scale_color_manual(values = duas, labels = c("D02O" = "Número de drogas", "D03" = "Escala de Adicção")) +
+  theme_minimal() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+  
+
+
+```
+
+```{r imagem41, echo = FALSE, fig.cap = "Comparação entre Número de Substâncias utilizadas e Nota na Escala de Adicção", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal21)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Note que, curiosamente, a pessoa com a maior variação de uso (13 substâncias) foi a que se deu a menor nota (5) na escala de vício. Apesar disso, é possível perceber que quase sempre a nota é alta, independentemente do número de substâncias utilizadas.
+  
+  Ainda nesta seção tentou-se capturar características das CT's nas quais os respondentes deram entrada. De modo geral a idade média dos entrevistados ao dar entrada era de 25 anos e pelo menos 50% fez apenas uma entrada, o que indica que a outra parte passou por processos de rotatividade. Foi-se perguntado também de qual forma os entrevistados ficaram sabendo da Comunidade que residiram. As respostas se encontram abaixo:
+  
+```{r, include=FALSE}
+bd25 <- bd %>% 
+  count (D05) %>% 
+  drop_na()
+
+anal22 <- bd25 %>% 
+  ggplot(aes(x = reorder(D05,-n), y = n)) +
+  geom_bar (stat = "identity", fill = uma) +
+  labs ( 
+    x = "Forma de contato com a CT",
+    y = "Frequência"
+    ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Através da igreja que frequentava na época" = "Através da igreja\nque frequentava\nna época", "Através de ações da própria Comunidade Terapêutica" = "Através de ações\nda própria\nComunidade\nTerapêutica", "Através de ações do Governo" = "Através de ações\ndo Governo", "Através de familiares" = "Através de\nfamiliares", "Através de amigos" = "Através de\namigos"))
+```
+
+```{r imagem42, echo = FALSE, fig.cap = "Formas como os respondentes ficaram sabendo da última Comunidade Terapêutica que deram entrada", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal22)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Percebe-se que a forma mais comum foi através de familiares (43%), seguido de ações da própria CT (36%) e amigos (11%). 89% dos respondentes afirmaram que a Comunidade que deram entrada se auto intitulava religiosa, o que coaduna com os dados divulgados pelo IPEA previamente discutidos. O gráfico abaixo descreve à quais religiões essas CT's eram filiadas. A maioria é de Protestantes da linhagem Pentecostal (76%), seguido de Protestantes Históricos (12%) e Católicos (8%). A presença de Comunidades de credos diferentes dos majoritários, no caso Espírita, também foi capturada, mesmo que em menor quantidade (3,5%). Note que uma parte dos respondentes afirmaram vir de CT's não religiosas. Para todos os efeitos essas Comunidades serão chamadas de "Laicas", o que será provado, em breve, falso, dado que até mesmo essas possuem comportamentos religiosos.
+  
+  
+```{r, include=FALSE}
+bd26 <- bd %>% 
+  count (D06A) %>% 
+  drop_na()
+
+anal23 <- bd26 %>% 
+  ggplot(aes(x = reorder(D06A,-n), y = n)) +
+  geom_bar (stat = "identity", fill = uma) +
+  labs ( 
+    x = "Religião",
+    y = "Frequência"
+    ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Evangélica Pentecostal" = "Evangélica\nPentecostal",
+                              "Evangélica Histórica" = "Evangélica\nHistórica"))
+```
+
+```{r imagem43, echo = FALSE, fig.cap = "Religião a qual a CT religiosa era filiada", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal23)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Também foram sondadas a presença ou ausência de alguns dos elementos terapêuticos geralmente aplicados pelas CT's: _Cultos/Missas_, _Espiritualidade_ e _Acompanhamento Psicológico/Psiquiátrico_. Os resultados encontram-se abaixo:
+  
+
+```{r, include=FALSE}
+
+bd27 <- bd %>% 
+  select (D07, D08, D09)
+
+bd28 <- melt(bd27, measure.vars = c("D07", "D08", "D09"),id.vars = character())
+
+bd28 <- bd28 %>% 
+  group_by(variable) %>% 
+  count (value) %>% 
+  drop_na()
+
+anal24 <- bd28 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar (stat = "identity", position = "fill") +
+  labs ( 
+    x = "Elementos Terapêuticos",
+    y = "Proporção",
+    fill = "Presença"
+    ) +
+  scale_x_discrete(labels = c("D07" = "Cultos ou Missas", "D08" = "Espiritualidade", "D09" = "Acompanhamento Psicológico\n ou Psiquiátrico")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+```
+
+```{r imagem44, echo = FALSE, fig.cap = "Tipos de elementos terapêticos empregados", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal24)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  É perceptível que Cultos e Missas, assim como Espiritualidade, são elementos quase unânimes, enquanto acompanhamento psicológico aparenta ser menos presente. Ao ver como essas divisões se comportam quando confrontadas com a religião à qual a CT é filiada percebe-se que Católicos, Espíritas e Laicos forneceram tanto elementos religiosos quanto clínicos, enquanto as Protestantes ofereciam mais religiosos do que clínicos. As Pentecostais foram as que demonstraram maior ausência de acompanhamento psicológico/psiquiátrico.
+
+
+```{r, include=FALSE}
+
+bd29 <- bd %>% 
+  select (D07, D08, D09, D06A)
+
+bd30 <- melt(bd29, measure.vars = c("D07", "D08", "D09"),id.vars = "D06A")
+
+bd30 <- bd30 %>% 
+  group_by(variable, D06A) %>% 
+  count (value) %>% 
+  drop_na()
+
+anal25 <- bd30 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar (stat = "identity", position = "fill") +
+  labs ( 
+    x = "Elementos Terapêuticos",
+    y = "Proporção",
+    fill = "Presença"
+    ) +
+  scale_x_discrete(labels = c("D07" = "Cultos\nou Missas", "D08" = "Espiritualidade", "D09" = "Acompanhamento\nPsicológico\n ou Psiquiátrico")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank")) +
+  facet_wrap(~D06A) +
+  coord_flip()
+```
+
+```{r imagem45, echo = FALSE, fig.cap = "Tipos de elementos terapêticos empregados por Religião a qual a CT é filiada", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal25)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Uma prática comum em CT's é a atribuição de funções para os internos. Tais atividades variam de coisas comuns do dia a dia a cargos de confiança dentro da residência, tais como Liderança e Auxílio em questões administrativas. O gráfico abaixo demonstra a distribuição geral destas entre os entrevistados. Descobriu-se também que alguns dos respondentes chegavam a cumprir tarefas que divergiam do _milieu_ terapêutico convencional, como serviços de construção e conserto.
+
+
+```{r, include=FALSE}
+bd27 <- bd %>% 
+  select (D10A, D10B, D10C, D10D, D10E, D10F)
+
+bd28 <- melt(bd27, measure.vars = c("D10A", "D10B", "D10C", "D10D", "D10E", "D10F"),id.vars = character())
+
+bd29 <- bd28 %>% 
+  group_by(variable) %>% 
+  count (value) %>% 
+  drop_na()
+
+bd29 <- bd29 %>% 
+  separate(value, into = c("value", "value2", "value3"), sep = "/")
+
+bd30 <- bd29 %>%
+  pivot_longer(c(value, value2, value3), names_to = "variable", values_to = "n", names_repair = "unique")
+
+bd30 <- bd30 %>% 
+  group_by(n...4) %>% 
+  drop_na()
+
+anal26 <- bd30 %>% 
+  ggplot(aes (x = reorder(n...4,-n...2), y = n...2)) +
+  geom_bar(stat = "identity", fill = uma) +
+  labs (
+    x = "Função",
+    y = "Frequência"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+```
+
+```{r imagem46, echo = FALSE, fig.cap = "Divisão de Atividades e Cargos entre os Internos", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal26)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Uma divisão por sexo consegue contrastar melhor a distribuição dessas atividades. Nenhuma mulher que participou da pesquisa ocupou cargo de Liderança ou Administrativo. As atividades mais comuns entre este grupo eram as de auxiliar e cozinheira e, apesar de haver mais homens do que mulheres nessa pesquisa, são elas que dominam as funções relacionadas a cozinha. O gráfico abaixo demonstra essa divisão.
+
+
+```{r, include=FALSE}
+
+library (tidyverse)
+
+bd27 <- bd %>% 
+  select (D10A, D10B, D10C, D10D, D10E, D10F, S03)
+
+bd28 <- melt(bd27, measure.vars = c("D10A", "D10B", "D10C", "D10D", "D10E", "D10F"),id.vars = "S03")
+
+bd29 <- bd28 %>% 
+  group_by(S03) %>% 
+  count (value) %>% 
+  drop_na()
+
+bd29 <- bd29 %>% 
+  separate(value, into = c("value", "value2", "value3"), sep = "/")
+
+bd30 <- bd29 %>%
+  pivot_longer(c(value, value2, value3), names_to = "names", values_to = "total", names_repair = "universal")
+
+
+bd30 <- bd30 %>% 
+  group_by(total) %>% 
+  drop_na()
+
+
+anal27 <- bd30 %>% 
+  ggplot(aes (x = reorder(total,-n), y = n, fill = S03)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Função",
+    y = "Proporção",
+    fill = "Sexo"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = duas) +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+```
+
+
+```{r imagem47, echo = FALSE, fig.cap = "Divisão de Atividades e Cargos entre os Internos por Sexo", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal27)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  
+  Após todas estas especificações sobre a CT e uso abusivo de drogas, resta saber mais sobre como se encontra a vida dos respondentes atualmente. 34% dos respondentes não apresentaram relapsos e estavam, até a data que responderam a pesquisa, em estado de abstinência, o que implica que pelo menos dois terços dos entrevistados utilizaram alguma das substâncias que apareceram nas opções em algum momento após sua saída da CT. O gráfico abaixo dispõe das respostas oferecidas e suas eventuais frequências.
+  
+  
+```{r, include=FALSE}
+
+bd31 <- bd %>%
+  select(PCT01A, PCT01B, PCT01C, PCT01D, PCT01E, PCT01F, PCT01G, PCT01H, PCT01I, PCT01J, PCT01K,
+         PCT01L, PCT01M, PCT01N, PCT01O)
+
+bd31 <- melt(bd31, measure.vars = c("PCT01A", "PCT01B", "PCT01C", "PCT01D", "PCT01E", "PCT01F", 
+                                    "PCT01G", "PCT01H", "PCT01I", "PCT01J", "PCT01K", "PCT01L",
+                                    "PCT01M", "PCT01N", "PCT01O"), id.vars = character())
+
+bd32 <- bd31 %>%
+  group_by(variable) %>% 
+  count (value) %>% 
+  drop_na()
+
+bd32 <- bd32[2:6,]
+
+anal27 <- bd32 %>% 
+  ggplot(aes(x = reorder(value,-n), y = n)) +
+  geom_bar(stat ="identity", fill = uma) +
+  labs (
+    x = "Substância",
+    y = "Frequência"
+  ) +
+  theme_minimal() +
+  coord_flip()
+
+
+
+```
+
+```{r imagem48, echo = FALSE, fig.cap = "Drogas consumidas no período Pós CT", fig.pos = "H", fig.align='center', out.width="80%" }
+
+plot (anal27)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+  Perceba que as drogas que disparam no rank são Álcool e Cigarro, mais fáceis de serem consumidas, dado que são lícitas. Já entre as ilícitas Maconha e Cocaína são as mais utilizadas, em último lugar ficou o Crack. Tanto para os que apresentaram recaída quanto para os que permaneceram abstêmios foi-se perguntado qual o principal motivador para tal estado. Os resultados se encontram abaixo:
+
+  
+```{r, include=FALSE}
+
+bd33 <- bd %>%
+  count (PCT02A) %>% 
+  drop_na()
+
+bd34 <- bd %>%
+  count (PCT02B) %>% 
+  drop_na()
+
+
+anal28 <- bd33 %>% 
+  ggplot(aes(x = reorder(PCT02A, -n), y = n)) + 
+  geom_bar(stat = "identity", fill = uma) +
+  labs (
+    x = "Motivo",
+    y = "Frequência"
+  ) +
+  theme_minimal()+
+  coord_flip() +
+  scale_x_discrete(labels = c("Ajuda de Amigos e Familiares" = "Ajuda de Amigos\ne Familiares",
+                              "Vontade Própria" = "Vontade\nPrópria", "Conversão Religiosa" = "Conversão\nReligiosa"))
+  
+
+
+anal29 <- bd34 %>% 
+  ggplot(aes(x = reorder(PCT02B, -n), y = n)) + 
+  geom_bar(stat = "identity", fill = uma) +
+  labs (
+    x = "Motivo",
+    y = "Frequência"
+  ) +
+  theme_minimal()+
+  scale_x_discrete(labels = c("Distanciamento dos filhos" = "Distanciamento\ndos filhos",
+                              "Não seguir o Plano de Prevenção a Recaída" = "Não seguir o Plano de\nPrevenção\na Recaída",
+                              "Falta de apoio de amigos e familiares"="Falta de apoio de\namigos e\nfamiliares",
+                              "Não frequentei cultos/missas" = "Não frequentei\ncultos/missas")) +
+  
+  coord_flip()
+
+```
+  
+  
+```{r imagem49, echo = FALSE, fig.cap = "Motivos para Abstêmia fornecidos pelos entrevistados", fig.pos = "H", fig.align='center', out.width= "80%"}
+
+plot (anal28)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+```{r imagem49-1, echo = FALSE, fig.cap = "Motivos para Recaída fornecidos pelos entrevistados", fig.pos = "H", fig.align='center', out.width= "80%"}
+
+plot (anal29)
+```  
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Percebe-se em ambos os grupos que elementos religiosos costumam ser os menos citados. No topo dos principais motivos para abstêmia se encontra a _Ajuda de amigos e familiares_ e no topo dos motivos para recaída se encontra a _Falta de vontade própria_. Isso pode ser um indicativo de que parece existir uma tendência entre os que sofreram recaída de utilizar elementos pessoais como explicadores e entre os abstêmios, as redes sociais. Ao ver como essa variação acontece por Sexo percebe-se que, entre mulheres abstêmias, _Filhos_ e _Conversão Religiosa_ foram os com maior impacto, enquanto homens se apoiaram mais na _Ajuda de Amigos e Familiares_ e na _Vontade Própria_. Já entre as mulheres que recaíram a _Falta de Apoio a Amigos e Familiares_ e a _Falta de Vontade Própria_ foram os fatores mais apontados, enquanto para os homens _Distanciamento dos Filhos_ e _Falta de Vontade Própria_ desempenharam maior papel. Essas distribuições podem ser visualizadas nos gráficos abaixo:
+  
+```{r, include=FALSE}
+
+
+bd33 <- bd %>%
+  group_by(S03) %>% 
+  count (PCT02A) %>% 
+  drop_na()
+
+anal31 <- bd33 %>% 
+  ggplot(aes(x = reorder(PCT02A, -n), y = n, fill = S03)) + 
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Motivo",
+    y = "Proporção",
+    fill = "Sexo"
+  ) +
+  theme_minimal()+
+  coord_flip() +
+  scale_x_discrete(labels = c("Ajuda de Amigos e Familiares" = "Ajuda de Amigos\ne Familiares",
+                              "Vontade Própria" = "Vontade\nPrópria", "Conversão Religiosa" = "Conversão\nReligiosa")) +
+  scale_fill_manual(values = duas) +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+
+bd34 <- bd %>%
+  group_by(S03) %>%  
+  count (PCT02B) %>% 
+  drop_na()
+
+
+anal32 <- bd34 %>% 
+  ggplot(aes(x = reorder(PCT02B, -n), y = n, fill = S03)) + 
+  geom_bar(stat = "identity", position = "fill") +
+  labs (
+    x = "Motivo",
+    y = "Proporção",
+    fill = "Sexo"
+  ) +
+  theme_minimal()+
+  coord_flip() +
+  scale_x_discrete(labels = c("Distanciamento dos filhos" = "Distanciamento\ndos filhos",
+                              "Não seguir o Plano de Prevenção a Recaída" = "Não seguir o Plano de\nPrevenção\na Recaída",
+                              "Falta de apoio de amigos e familiares"="Falta de apoio de\namigos e\nfamiliares",
+                              "Não frequentei cultos/missas" = "Não frequentei\ncultos/missas")) +
+  scale_fill_manual(values = duas) +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+  
+
+
+```
+  
+  
+```{r imagem50, echo = FALSE, fig.cap = "Motivos para Abstêmia por Sexo", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal31)
+```
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+  
+  
+```{r imagem51, echo = FALSE, fig.cap = "Motivos para Recaída por Sexo", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal32)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Para além de entender motivações pessoais para o estado de abstinência procurou-se sondar as características das redes sociais do respondente. Um dos primeiros elementos a ser perguntado foi sobre a presença da família no percurso de uso abusivo. Foi-se questionado como era a relação do respondente com a sua família durante o período de uso abusivo e atualmente. Foram fornecidas três categorias: Conflituosa (C), Harmônica (H) e Inexistente (I). O gráfico abaixo retrata o quantitativo destas trajetórias sendo a primeira letra a relação **durante** o período de uso abusivo e a segunda letra **após** o tratamento, ou seja, atualmente.
+
+```{r, include = FALSE}
+
+bd4 <- bd %>% 
+  select(FS03, D01) %>%
+  mutate (
+    DEST = case_when(
+      D01 == "Conflituosa" & FS03 == "Harmônica" ~ "C-H",
+      D01 == "Conflituosa" & FS03 == "Conflituosa" ~ "C-C",
+      D01 == "Harmônica" & FS03 == "Harmônica" ~ "H-H",
+      D01 == "Harmônica" & FS03 == "Conflituosa" ~ "H-C",
+      D01 == "Inexistente" & FS03 == "Inexistente" ~ "I-I",
+      D01 == "Inexistente" & FS03 == "Harmônica" ~ "I-H",
+      D01 == "Harmônica" & FS03 == "Inexistente" ~ "H-I",
+      D01 == "Inexistente" & FS03 == "Conflituosa" ~ "I-C",
+      D01 == "Conflituosa" & FS03 == "Inexistente" ~ "C-I"
+    )
+  ) %>% 
+  drop_na()
+
+bd5 <- bd4 %>% 
+  count(DEST) 
+
+
+anal33 <- bd5 %>% 
+  ggplot(aes(x = reorder(DEST,-n), y = n)) +
+  geom_bar(stat = "identity", fill = uma) +
+  labs(
+    x = "Trajeto da Relação Familiar",
+    y = "Frequência"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size=10, face="bold"))
+
+```
+
+```{r imagem52, echo = FALSE, fig.cap = "Trajeto da Relação Familiar do período de Uso Abusivo até o momento da pesquisa", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal33)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  De modo geral, a maioria dos respondentes saiu do Conflito para a Harmonia (C-H) após o tratamento, com destaque para a existência de casos aonde ter feito o tratamento reatou as relações familiares (I-H). A menor frequência foram casos em que, mesmo após o tratamento, não foi possível reaver a relação familiar, logo o caráter inexistente (C-I).
+  
+  A presença de outros círculos sociais na vida do respondente, como amigos do período de uso abusivo e pessoas da própria Comunidade que o respondente deu entrada, também foi sondada. Percebe-se que, no geral, as amizades feitas durante o período de uso abusivo não tendem a sobreviver o período de internação, já as feitas no âmbito da CT foram, em grande parte, preservadas. O gráfico abaixo demonstra esta relação:
+  
+  
+```{r, include=FALSE}
+
+bd98 <- bd %>% 
+  count(FS01, FS02) %>% 
+  drop_na()
+
+bd99 <- melt(bd98, measure.vars = c("FS01", "FS02"), id.vars = "n")
+
+anal34 <- bd99 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Grupo",
+    y = "Frequência",
+    fill = "Contato"
+  ) +
+  scale_x_discrete(labels = c("FS01" = "Período de Uso\nAbusivo de Drogas",
+                              "FS02" = "Período de\nAcolhimento")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+```
+
+
+```{r imagem53, echo = FALSE, fig.cap = "Laços de amizade entre o respondente e pessoas que conheceu no período de Uso Abusivo e Acolhimento na CT", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal34)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+  Também foi questionado, no quesito das relações sociais, quais pessoas ofereceram apoio ao respondente quando ele deixou a CT. Foram oferecidas como possibilidades: Família, Amigos, Pessoas da Igreja, Vizinhos, Outros egressos e Grupos de Auto Ajuda. O resultado se encontra no gráfico abaixo:
+  
+```{r, include = FALSE}
+
+bd9 <- bd %>% 
+  select(FS05A, FS05B, FS05C, FS05D, FS05E, FS05F) %>% 
+  drop_na()
+
+
+bd10 <- melt(bd9, measure.vars = c("FS05A", "FS05B", "FS05C", "FS05D", "FS05E", "FS05F"), id.vars = character())
+
+bd10 <- bd10 %>% 
+  group_by(variable) %>% 
+  count(value)
+
+anal35 <- bd10 %>% 
+  ggplot(aes(x = variable, y = n, fill = value)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Grupos",
+    y = "Frequência",
+    fill = "Apoio"
+  ) +
+  scale_x_discrete(labels = c("FS05A" = "Família",
+                              "FS05B" = "Amigos",
+                              "FS05C" = "Pessoas da\nIgreja",
+                              "FS05D" = "Vizinhos",
+                              "FS05E" ="Outros\nEgressos",
+                              "FS05F" = "Grupos de\nAuto Ajuda")) +
+  scale_fill_manual(values = duas) +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+
+```
+  
+
+```{r imagem54, echo = FALSE, fig.cap = "Grupos que ofereceram apoio aos respondantes após a saída da CT", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal35)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter  
+  
+  
+  Percebe-se que Amigos e Grupos de Auto Ajuda são os que mais ofereceram apoio aos respondentes, Vizinhos e Pessoas da Igreja são as que ofereceram menos apoio.
+
+  A última pergunta do questionário, e também um dos grandes propósitos deste estudo, era sobre o quanto o respondente acreditava estar atualmente recuperado. Ao invés de utilizar escala psicométrica optei por usar uma escala de auto declaração que ia de 1 a 10. A média obtida foi de 7.5 e a mediana foi 8, o que indica que, no geral, os respondentes parecem estar em um nível ótimo, quase excelente, de recuperação. Essas medidas, no entanto, sofrem algumas variações ao serem contrastadas com outras variáveis. Mulheres tiveram, em média, níveis de recuperação maiores ($\mu$ = 8.2). Quando visto por religião, os valores médios obtidos por Protestantes e Sem Filiação são bastante próximos (7.8 e 7.4, respectivamente). Por credo da CT percebe-se que as Católicas e Evangélica Histórica obtiveram os maiores valores ($\mu$ = 9) e as Evangélicas Pentecostais obtiveram a menor colocação ($\mu$ = 7.2). Tais relações podem ser percebidas de forma mais clara nos gráficos abaixo:
+ 
+```{r, include=FALSE}
+
+bd20 <- bd %>% 
+  group_by(R02) %>% 
+  summarise(median = mean (FS06, na.rm = T)) %>% 
+  mutate(y = 1:length(R02)) %>%
+  drop_na()
+
+anal36 <- bd20 %>% 
+  ggplot (aes(x = R02, y = median, group = 1)) +
+  geom_line(colour = uma) +
+  geom_point(colour = uma) +
+  labs (
+    x = "Religião",
+    y = "Frequência"
+  ) +
+  theme_minimal()
+
+bd21 <- bd %>% 
+  group_by(S03) %>% 
+  summarise(median = mean (FS06, na.rm = T)) %>% 
+  mutate(y = 1:length(S03)) %>%
+  drop_na()
+
+anal37 <- bd21 %>% 
+  ggplot (aes(x = S03, y = median, group= 1)) +
+  geom_line(colour = uma) +
+  geom_point(colour = uma) +
+  labs(
+    x = "Sexo",
+    y = "Frequência"
+  ) +
+  theme_minimal()
+
+bd22 <- bd %>% 
+  group_by(D06A) %>% 
+  summarise(median = mean (FS06, na.rm = T)) %>% 
+  mutate(y = 1:length(D06A)) %>%
+  drop_na()
+
+anal38 <- bd22 %>% 
+  ggplot (aes(x = D06A, y = median, group = 1)) +
+  geom_line (colour = uma) +
+  geom_point(colour = uma) +
+  labs (
+    x = "Credo da CT",
+    y = "Frequência"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Evangélica Histórica" = "Evangélica\nHistórica", "Evangélica Pentecostal" = "Evangélica\nPentecostal"))
+
+```
+  
+```{r imagem55, echo = FALSE, fig.cap = "Nível de recuperação e Opção Religiosa", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal36)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter  
+  
+  
+```{r imagem56, echo = FALSE, fig.cap = "Nível de recuperação e Sexo", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal37)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+```{r imagem57, echo = FALSE, fig.cap = "Nível de recuperação e Credo da CT", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal38)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Apesar de ser apenas um contraste de médias percebe-se que a Religião não parece ser um elemento que provoca sempre uma melhora na recuperação do respondente. Ao se contrastar com a frequência com a que se vai a igreja, por exemplo, percebe-se que "Apenas no fim de semana" e "Não frequento ou visito a Igreja" tem as maiores médias de recuperação. Isso também vale para o nível de religiosidade, pessoas que se deram notas 0 e 10 obtiveram maiores médias de recuperação ($\mu$ = 9.3).
+  
+```{r, echo = FALSE}
+bd31 <- bd %>% 
+  group_by(R03) %>% 
+  summarise(median = mean (FS06, na.rm = T)) %>% 
+  mutate(y = 1:length(R03)) %>%
+  drop_na()
+
+anal90 <- bd31 %>% 
+  ggplot (aes(x = R03, y = median, group = 1)) +
+  geom_line(colour = uma) +
+  geom_point(colour = uma) +
+  geom_hline(yintercept = 7.05, color="#5B84C4", linetype = "dashed", size = 1.0) +
+  labs (
+    x = "Frequência",
+    y = "Recuperação"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Não frequento ou visito nenhuma igreja" = "Não frequento ou\nvisito nenhuma\nigreja","Somente em ocasiões especiais" = "Somente em\nocasiões especiais","Apenas no fim de semana" = "Apenas no\nfim de semana", "Mais que três vezes na semana" = "Mais que\ntrês vezes\nna semana"))
+
+```
+  
+```{r imagem90, echo = FALSE, fig.cap = "Nível de recuperação e Frequência com que vai a Igreja", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal90)
+```  
+  
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+\pagebreak
+
+## Estilos de Tratamento e Adesão a Religiosidade
+  
+  O último tópico desta seção diz respeito aos dados coletados sobre o tratamento em si, em especial as atitudes que os respondentes têm em relação ao papel da religião no processo de tratamento e recuperação.
+  
+  No que diz respeito ao estilo de tratamento, foi-se perguntado qual tipo era mais recomendado pelo respondente: um baseado em Religião/Espiritualidade ou um baseado em Redução de Danos. Perguntas desse tipo costumam refletir bem o apreço que se coloca em relação ao item questionado. A primeira opção foi a preferida entre os respondentes sendo a mediana 6, enquanto a segunda teve como mediana 5. Apesar da distância entre os valores não ser muito grande é perceptível uma leve preferência pelo primeiro. Essa medida não mostrou muitas disparidades ao ser contrastada por sexo, ao se contrastar por Opção Religiosa, no entanto, percebe-se uma possível tendência. O gráfico abaixo demonstra tais disposições:
+  
+  
+```{r, include=FALSE}
+bd2 <- bd %>% 
+  select (R02, PCT03, PCT04) %>% 
+  drop_na()
+
+bd2 <- bd2 %>% 
+  group_by(R02) %>%
+  summarise(meanR = mean(PCT03),
+            meanRd = mean (PCT04))
+
+bd3 <- melt (bd2, measure.vars = c("meanR", "meanRd"), id.vars = "R02")
+
+anal39 <- bd3 %>% 
+  ggplot(aes(x = R02, y = value, group = variable, colour = variable)) +
+  geom_line() +
+  geom_point() +
+  labs (
+    x = "Religião",
+    y = "Média da Nota",
+    colour = "Tipo de Tratamento"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = duas, labels = c("meanR" = "Religião/Espiritualidade", "meanRd" = "Redução de Danos")) +
+  theme(legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", 
+                                                                     size=0.7, linetype="blank"))
+```
+
+  Percebe-se que religiosos tendem a valorizar mais tratamentos com inclusão de elementos religiosos do que as pessoas Sem Filiação. Isso fica claro ao observar a queda drástica que acontece na nota dos Sem Filiação sobre tratamentos puramente religiosos (4.1) e na eventual subida na nota sobre Redução de Danos (4.6). 
+
+```{r imagem58, echo = FALSE, fig.cap = "Relação entre Nota para tipos de tratamento e Opção religiosa", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal39)
+```  
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Ainda no debate sobre a opinião dos respondentes em relação ao tratamento foram feitas onze perguntas em estilo _Likert_ de 5 níveis (Concordo Totalmente, Concordo em parte, Não concordo nem discordo, Discordo em partes, Discordo totalmente) sobre o tratamento e os possíveis impactos de uma vida longe da igreja e de elementos religiosos no estado de abstêmia. Todas as perguntas foram processadas de forma a criarem no final um construto latente que demonstrasse  atitudes referentes a religião ou laicidade no contexto do tratamento e da recuperação. Para tal desiderato foi-se feito, inicialmente, uma Análise de Confiabilidade em ordem de saber se os itens realmente mediam o que se esperava. Nessa análise é calculado o _Alpha de Crombach_ dos itens, a partir de tal cálculo pode-se saber se os itens variam juntos e o quanto dessa variância pode ser explicada numa possível união das variáveis em processos de redução [@cronbach_coefficient_1951]. O resultado se encontra na tabela abaixo:
+  
+| Item                                                                                                              | Natureza da Correlação | $$     
+                                                                                                                                              \alpha  
+                                                                                                                                              $$          |
+|-------------------------------------------------------------------------------------------------------------------|------------------------|------------|
+| É importante a presença de religião/espiritualidade durante tratamento                                            | Positiva               | **0.87**   |
+| É importante a presença de acompanhamento psicológico/psiquiátrico durante tratamento                             | Negativa               | 0.29       |
+| É importante que a pessoa se converta a alguma crença/religião durante o tratamento.                              | Positiva               |**0.91**    |
+| Uma pessoa que não se converter a alguma crença/religião durante o tratamento tem mais chances de sofrer recaída. | Positiva               | **0.93**   |
+| Uma pessoa que tem amigos religiosos têm menos chances de sofrer recaída                                          | Positiva               | 0.67       |
+| Uma pessoa que não tenha força de vontade tem mais chances de sofrer recaída.                                     | Negativa               | 0.21       |
+| Ir a igreja me ajudou a não sofrer recaída                                                                        | Positiva               | **0.89**   |
+| Ter me convertido ajudou a não sofrer recaída                                                                     | Positiva               | **0.75**   |
+| Ter amigos religiosos me ajudou a não sofrer recaída.                                                             | Positiva               | **0.86**   |
+| Uma pessoa que fez seu tratamento numa clínica ou comunidade não-religiosa tem mais chances de sofrer recaída     | Positiva               | **0.85**   |
+| Uma pessoa que não frequenta a igreja após o tratamento tem mais chances de sofrer recaída.                       | Positiva               | **0.93**   |
+  
+Table: (\#tab:alpha-religiao) _Alpha de Crombach_ dos itens utilizados na construção da variável
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Pecebe-se pela tabela que os dois itens com carga negativa são os que versam sobre elementos laicos (atendimento psicológico e psiquiátrico e força de vontade) enquanto todos os itens que envolvem religião possuem carga positiva. Todos os itens com \acrshort{carga} inferior a 0.7 (não significativos) foram eliminados em ordem de fazer o construto mais potente, com exceção do 5\textordmasculine que, após a eliminação dos negativos, conseguiu atingir carga de 0.7. Ao final a análise obteve um $\alpha$ de 0.96 que é mais que significativo e indica que as variáveis podem representar um construto. Após a análise os itens foram somados e o resultado desse somatório foi utilizado como _Índice de Apoio a Religiosidade_ ou IAR. 
+  
+  Nesse índice usarei como guia os próprios quartis, de forma que todas as pessoas com pontuações entre o 3\textordmasculine e o 4\textordmasculine quantis serão consideradas maiores apoiadoras da presença de religiosidade no contexto do tratamento/recuperação enquanto os 1\textordmasculine e 2\textordmasculine quartis serão os dos que apoiam de forma menos intensa ou não dão apoio. O gráfico abaixo demonstra essa divisão final:
+  
+  
+```{r, include=FALSE}
+library (gtools)
+attach(bd)
+
+bd$SUM <- (EA01_n + EA03_n + EA04_n + EA05_n + EA07_n + EA08_n + EA09_n + EA10_n + EA11_n)
+detach(bd)
+
+bd$quant <- quantcut(bd$SUM, na.rm = T)
+
+bd2 <- bd %>% 
+  select(SUM, quant) %>% 
+  mutate (y = 1:length(SUM)) %>% 
+  drop_na()
+
+
+anal40 <- bd2 %>% 
+  ggplot(aes(x = SUM, y = y, group = quant, colour = quant)) +
+  geom_jitter(size = 3) +
+  theme_minimal() +
+  labs (
+    x = "IAR",
+    colour = "Quantil"
+  ) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "bottom", legend.background = element_rect(fill="#F4EAFF", size=0.7, linetype="blank")) +
+  scale_color_manual(values = quatro, labels = c("[9,18]" = "1Q", "(18,31]" = "2Q", "(31,38]" = "3Q", "(38,44]" = "4Q"))
+```
+
+```{r imagem59, echo = FALSE, fig.cap = "Distribuição do IAR", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal40)
+``` 
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  É possível perceber que grande parte dos respondentes (30%) se localizam no primeiro quartil e uma minoria se encontra no último (22%), o que indica que grande parte destes possuem posicionamentos fracos ou moderados no que diz respeito a Atitudes Religiosas no contexto do tratamento/recuperação. Com o índice em mãos fica mais fácil ver esse comportamento contrastado com outras variáveis do questionário.
+  
+  No que diz respeito a religião o IAR é extremamente alto entre Protestantes e baixo nas outras categorias. Ao se comparar por Estado de Conversão percebe-se que ele é menor entre não convertidos e pessoas que afirmaram não existir processos de conversão em sua religião atual. Ao checar por religião da Comunidade percebe-se que pessoas advindas de CT's Católicas são os que menos apoiam a ideia de religião como suporte, sendo todos os outros (inclusive os advindos de CT "Laica") propensos a essa noção. Os gráficos abaixo demonstram essas relações. A linha azul no gráfico representa a média geral do IAR.
+  
+
+```{r, include = FALSE}
+
+bda <- bd %>% 
+  group_by(R06) %>% 
+  summarise(mean = mean (SUM, na.rm = T)) %>% 
+  drop_na()
+
+bdb <- bd %>% 
+  group_by(R02) %>% 
+  summarise(mean = mean (SUM, na.rm = T)) %>% 
+  drop_na()
+
+bdc <- bd %>% 
+  group_by(D06A) %>% 
+  summarise(mean = mean (SUM, na.rm = T)) %>% 
+  drop_na()
+
+#gráficos
+
+anal41 <- bda %>% 
+  ggplot(aes(x = R06, y = mean, group = 1)) +
+  geom_line (colour = uma) +
+  geom_point(colour = uma) +
+  geom_hline(yintercept = 27.9, color="#5B84C4", linetype = "dashed", size = 1.0) +
+  labs (
+    x = "Estado de Conversão",
+    y = "Média"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Ainda estou em processo de conversão" = "Ainda estou\nem processo\nde conversão",
+                              "Não existe algo como conversão na minha religião" = "Não existe algo\ncomo conversão\nna minha religião",
+                            "Não, eu não me considero convertido" = "Não, eu não me\nconsidero convertido",
+                              "Sim, eu me considero convertido" = "Sim, eu me considero\nconvertido"))
+
+anal42 <- bdb %>% 
+  ggplot(aes(x = R02, y = mean, group = 1)) +
+  geom_line (colour = uma) +
+  geom_point (colour = uma) +
+  geom_hline(yintercept = 27.9, color="#5B84C4", linetype = "dashed", size = 1.0) +
+  labs(
+    x = "Opção Religiosa",
+    y = "Média"
+  ) +
+  theme_minimal()
+
+anal43 <- bdc %>% 
+  ggplot(aes(x = D06A, y = mean, group = 1)) +
+  geom_line(colour = uma) +
+  geom_point(colour = uma) +
+  geom_hline(yintercept = 27.9, color="#5B84C4", 
+             linetype = "dashed", size= 1.0) +
+  labs(
+    x = "Credo da CT",
+    y = "Média"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Evangélica Histórica" = "Evangélica\nHistórica",
+                              "Evangélica Pentecostal" = "Evangélica\nPentecostal"))
+
+
+
+
+```
+
+```{r imagem60, echo = FALSE, fig.cap = "Média do IAR por Estado de Conversão", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal41)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+```{r imagem61, echo = FALSE, fig.cap = "Média do IAR por Opção Religiosa", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal42)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+
+```{r imagem63, echo = FALSE, fig.cap = "Média do IAR por Credo da CT", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal43)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter
+
+  Um último dado, antes de prosseguir para a seção de Resultados propriamente dita, é a relação entre o _IAR_ e noção de auto importância. Percebe-se que, dentre os vários motivos citados para manutenção da abstêmia, ou da falta dela, a questão da Vontade Própria parece ter um grande papel. Pensando nisso, construiu-se uma pergunta com a intenção de avaliar qual a importância que o respondente dava a si mesmo no processo de recuperação. 85% dos respondentes avaliou a sua própria importância como "muito importante". Ao contrastar as respostas desse item com o _IAR_ percebe-se um padrão, no mínimo, curioso. Todas as pessoas que avaliaram a sua importância com outros itens além de "muito" possuem altos valores no IAR, o que pode ser um indicativo de que, muito provavelmente, indivíduos com altas pontuações no IAR tendem a confiar mais na religião e nos feitos divinos do que em si mesmo. Observe o padrão no gráfico abaixo, a linha azul representa o valor médio do IAR.
+  
+```{r, include=FALSE}
+
+bd100 <- bd %>% 
+  group_by(FS04) %>% 
+  summarise(mean = mean(SUM)) %>%
+  mutate(y = 1:length(FS04)) %>% 
+  drop_na()
+
+bd100$FS04 <- factor(bd100$FS04, levels = c("Pouco importante", "Mais ou menos importante",
+                                            "Muito importante"))
+
+anal44 <- bd100 %>% 
+  ggplot(aes(x = FS04, y = mean, group = 1)) +
+  geom_line (colour = uma) +
+  geom_point (colour = uma) +
+  geom_hline(yintercept = 27.9, color="#5B84C4", linetype = "dashed", size = 1.0) +
+  labs (
+    x = "Importância Própria",
+    y = "IAR"
+  ) +
+  theme_minimal()
+
+```
+
+  
+```{r imagem64, echo = FALSE, fig.cap = "Relação entre IAR e Auto Importância", fig.pos = "H", fig.align='center', out.width="80%"}
+
+plot (anal44)
+```
+
+\bcenter
+Fonte: ECRIECT, 2021
+\ecenter  
+
+
+
